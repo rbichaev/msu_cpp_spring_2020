@@ -11,10 +11,13 @@ size_t currSize;
 
 void makeAllocator(size_t maxS)
 {
-    cout << "Создание аллокатора размера " << maxS << " байт...\n";
     maxSize = maxS;
     currSize = 0;
-    beginPointer = (char *)malloc(maxSize);
+    if (!(beginPointer = (char *)malloc(maxSize)))
+    {
+        cout << "Ошибка!\n";
+        return;
+    }
     endPointer = beginPointer;
 }
 
@@ -25,8 +28,9 @@ char *alloc(size_t size)
         return nullptr;
     }
     currSize += size;
+    char *currPointer = endPointer;
     endPointer += size;
-    return endPointer;
+    return currPointer;
 }
 
 void reset()
@@ -37,7 +41,6 @@ void reset()
 
 void freeAllocator()
 {
-    cout << "Удаление аллокатора размера " << maxSize << " байт...\n";
     maxSize = 0;
     currSize = 0;
     endPointer = nullptr;
