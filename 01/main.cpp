@@ -15,7 +15,11 @@ void test1(int maxSize, int num)
     cout << "ТЕСТ " << numTest << "\n";
     cout << "------\n";
     cout << "Значение maxSize: " << maxSize << "\n";
-    makeAllocator(maxSize);
+    if (makeAllocator(maxSize))
+    {
+        cout << "Ошибка выделения памяти!\n";
+        return;
+    }
     cout << "Число байт для массива: " << num << "\n";
     char *c = alloc(num);
     if (c == nullptr)
@@ -35,7 +39,11 @@ void test2(int maxSize, int num1, int num2)
     cout << "ТЕСТ " << numTest << "\n";
     cout << "------\n";
     cout << "Значение maxSize: " << maxSize << "\n";
-    makeAllocator(maxSize);
+    if (makeAllocator(maxSize))
+    {
+        cout << "Ошибка выделения памяти!\n";
+        return;
+    }
     cout << "Число байт для 1 массива: " << num1 << "\n";
     char *c1 = alloc(num1);
     if (c1 == nullptr)

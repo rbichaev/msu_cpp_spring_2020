@@ -9,16 +9,16 @@ char *endPointer;
 size_t maxSize;
 size_t currSize;
 
-void makeAllocator(size_t maxS)
+int makeAllocator(size_t maxS)
 {
     maxSize = maxS;
     currSize = 0;
     if (!(beginPointer = (char *)malloc(maxSize)))
     {
-        cout << "Ошибка!\n";
-        return;
+        return 1;
     }
     endPointer = beginPointer;
+    return 0;
 }
 
 char *alloc(size_t size)
