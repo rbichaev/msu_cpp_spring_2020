@@ -53,7 +53,7 @@ void test1()
     std::cout << "------\n";
     std::cout << "ТЕСТ 1" << "\n";
     std::cout << "------\n";
-    const char *text = "44 rt 5 6g tyu";
+    const char *text = "44 rt\n5 \t6g tyu";
     registerBeginParse(beginParse);
     registerEndParse(endParse);
     registerCallbackNum(printNum);
@@ -67,7 +67,7 @@ void test2()
     std::cout << "------\n";
     std::cout << "ТЕСТ 2" << "\n";
     std::cout << "------\n";
-    const char *text = "63 gft 5 t5w6 bhsy";
+    const char *text = "63\tgft 5\nt5w6 bhsy";
     registerBeginParse(beginParse);
     registerEndParse(endParse);
     registerCallbackNum(printPowNum);
