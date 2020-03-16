@@ -1,61 +1,83 @@
 #include <iostream>
+#include <string>
 #include <cstring>
+#include <algorithm>
 #include "parser.h"
 
 // объявляем имена указателей на регистрируемые callback функции
-void (*beginParse)(const char *);
-void (*endParse)();
-void (*numParse)(char *); 
-void (*strParse)(char *); 
+using beginParse = void (*)(std::string);
+using endParse = void (*)();
+using numParse = void (*)(std::string); 
+using strParse = void (*)(std::string); 
+
+beginParse beginParseCallback;
+endParse endParseCallback;
+numParse numParseCallback;
+strParse strParseCallback;
+
+// вводим переменные для проверки - были ли зарегистрированы callback функции
+bool beginParseDeclared = false;
+bool endParseDeclared = false;
+bool numParseDeclared = false;
+bool strParseDeclared = false;
 
 // регистрируем начало парсинга
-void registerBeginParse(void (*callbackFoo)(const char *))
+void registerBeginParse(beginParse callbackFoo)
 {
-    beginParse = callbackFoo;
+    beginParseCallback = callbackFoo;
+    beginParseDeclared = true;
 }
 
 // регистрируем конец парсинга
-void registerEndParse(void (*callbackFoo)())
+void registerEndParse(endParse callbackFoo)
 {
-    endParse = callbackFoo;
+    endParseCallback = callbackFoo;
+    endParseDeclared = true;
 }
 
 // регистрируем callback для числа
-void registerCallbackNum(void (*callbackFoo)(char *))
+void registerCallbackNum(numParse callbackFoo)
 {
-    numParse = callbackFoo;
+    numParseCallback = callbackFoo;
+    numParseDeclared = true;
 }
 
 // регистрируем callback для строки
-void registerCallbackStr(void (*callbackFoo)(char *))
+void registerCallbackStr(strParse callbackFoo)
 {
-    strParse = callbackFoo;
+    strParseCallback = callbackFoo;
+    strParseDeclared = true;
 }
 
 // парсинг
-void parse(const char *text)
+bool parse(std::string text)
 {
-    char *copy = strdup(text);
-    char *word = strtok(copy, "\n\t ");
-    bool isNum;  // это флаг для проверки на число
-    beginParse(text);
-    while(word != NULL)
+    // проверяем, зарегистрированы ли все callback функции
+    if ((beginParseDeclared & endParseDeclared & numParseDeclared & strParseDeclared) == false)
+        return false;
+
+    beginParseCallback(text);
+
+    int begin_index = 0;
+    int end_index = 0;
+    std::string word;
+    const std::string separators("\n\t ");
+
+    // цикл парсинга
+    while (std::string::npos != (begin_index = text.find_first_not_of(separators, end_index)))
     {
-        // полагаем, что word - число, и проверяем его поэлементно
-        isNum = 1;
-        for (int i = 0; i < strlen(word); i++)
-        {
-            if (!isdigit(word[i]))
-            {
-                isNum = 0;
-                strParse(word);
-                break;
-            }
-        }
-        if (isNum == 1)
-            numParse(word);
-        word = strtok(NULL, "\n\t ");
+        if (std::string::npos == (end_index = text.find_first_of(separators, begin_index)))
+            word = text.substr(begin_index);
+        else
+            word = text.substr(begin_index, end_index - begin_index);
+
+        // проверяем, число ли это
+        if (std::all_of(word.begin(), word.end(), isdigit))
+            numParseCallback(word);
+        else
+            strParseCallback(word);
     }
-    endParse();
+    endParseCallback();
+    return true;
 }
 

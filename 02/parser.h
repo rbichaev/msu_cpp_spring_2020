@@ -1,5 +1,5 @@
-void registerBeginParse(void (*callbackFoo)(const char *const ));
+void registerBeginParse(void (*callbackFoo)(std::string));
 void registerEndParse(void (*callbackFoo)());
-void registerCallbackNum(void (*callbackFoo)(char *));
-void registerCallbackStr(void (*callbackFoo)(char *));
-void parse(const char *text);
+void registerCallbackNum(void (*callbackFoo)(std::string));
+void registerCallbackStr(void (*callbackFoo)(std::string));
+bool parse(std::string text);
