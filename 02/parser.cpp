@@ -4,12 +4,7 @@
 #include <algorithm>
 #include "parser.h"
 
-// объявляем имена указателей на регистрируемые callback функции
-using beginParse = void (*)(std::string);
-using endParse = void (*)();
-using numParse = void (*)(std::string); 
-using strParse = void (*)(std::string); 
-
+// объявляем имена указателей на регистрируемые callback функции{
 beginParse beginParseCallback;
 endParse endParseCallback;
 numParse numParseCallback;
@@ -50,7 +45,7 @@ void registerCallbackStr(strParse callbackFoo)
 }
 
 // парсинг
-bool parse(std::string text)
+bool parse(const std::string text)
 {
     // проверяем, зарегистрированы ли все callback функции
     if ((beginParseDeclared & endParseDeclared & numParseDeclared & strParseDeclared) == false)

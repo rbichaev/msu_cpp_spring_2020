@@ -7,73 +7,127 @@
 
 int testNum = 0;
 
-// callback функция, вызываемая перед началом парсинга
-void beginParse(std::string text)
+// переменные для проверки, встретились ли в данной строке числа и строки
+bool wereNums;
+bool wereStrs;
+
+// callback функции, вызываемые перед началом парсинга
+void beginParseNum(const std::string text)
 {
-    std::cout << "Начало парсинга строки \"" << text << "\"" << '\n';
+    wereNums = false;
+    std::cout << "Начало парсинга: поиск токенов-чисел в стоке \"" << text << "\"" << '\n';
 }
 
-// callback функция, вызываемая в конце парсинга
-void endParse()
+void beginParseStr(const std::string text)
 {
+    wereStrs = false;
+    std::cout << "Начало парсинга: поиск токенов-строк в строке \"" << text << "\"" << '\n';
+}
+
+// callback функции, вызываемые в конце парсинга
+void endParseNum()
+{
+    if (!wereNums)
+        std::cout << "В этой строке токены-числа не найдены!\n";
+    std::cout << "Конец парсинга..." << '\n';
+}
+
+void endParseStr()
+{
+    if (!wereStrs)
+        std::cout << "В этой строке токены-строки не найдены!\n";
     std::cout << "Конец парсинга..." << '\n';
 }
 
 // callback функция, которая выводит число
 void printNum(std::string num)
 {
-    std::cout << "Это число: " << num << '\n';
+    if (!wereNums)
+    {
+        wereNums = true;
+        std::cout << "Найдены числа:\n";
+    }
+    std::cout << num << '\n';
 }
 
-// callback функция, которая выводит квадрат числа
-void printPowNum(std::string num)
-{
-    std::cout << "Квадрат числа " << num << ": " << pow(stoi(num), 2) << '\n';
-}
+// callback функция, которая ничего не делает с числом
+void passNum(std::string num) {}
 
 // callback функция, которая выводит строку
 void printStr(std::string str)
 {
-    std::cout << "Это строка: " << str << '\n';
+    if (!wereStrs)
+    {
+        wereStrs = true;
+        std::cout << "Найдены строки:\n";
+    }
+    std::cout << str << '\n';
 }
 
-// callback функция, которая выводит буквы строки капсом
-void printUpStr(std::string str)
-{
-    std::cout << "Капс букв строки: ";
-    std::transform(str.begin(), str.end(), str.begin(), toupper);
-    std::cout << str << "\n";
-}
+// callback функция, которая ничего не делает со строкой
+void passStr(std::string str) {}
 
-// тест, который выводит числа и строки
+// тест, который ищет числа
 void test1()
 {
     testNum += 1;
     std::cout << "------\n";
     std::cout << "ТЕСТ " << testNum << "\n";
     std::cout << "------\n";
-    std::string text = "44 rt\n5 \t6g tyu";
-    registerBeginParse(beginParse);
+    const std::string text = "44 rt\n5 \t6g tyu 523\nty6\t903 46";
+    registerBeginParse(beginParseNum);
     // регистрируем callback функцию endParse в зависимости от номера теста
-    if (testNum > 1) registerEndParse(endParse);
+    if (testNum > 1) registerEndParse(endParseNum);
     registerCallbackNum(printNum);
-    registerCallbackStr(printStr);
+    registerCallbackStr(passStr);
     if (!parse(text))
         std::cout << "Не все callback функции зарегистрированы!\n";
 }
 
- // тест, который выводит квадраты чисел и строки с капсом
+ // тест, который ищет строки
 void test2()
 {
     testNum += 1;
     std::cout << "------\n";
     std::cout << "ТЕСТ " << testNum << "\n";
     std::cout << "------\n";
-    std::string text = "63\tgft 5\nt5w6 bhsy";
-    registerBeginParse(beginParse);
-    registerEndParse(endParse);
-    registerCallbackNum(printPowNum);
-    registerCallbackStr(printUpStr);
+    const std::string text = "63\tgft 5\nt5w6 bhsy fbds\n67\t7ydre oi";
+    registerBeginParse(beginParseStr);
+    registerEndParse(endParseStr);
+    registerCallbackNum(passNum);
+    registerCallbackStr(printStr);
+    if (!parse(text))
+        std::cout << "Не все callback функции зарегистрированы!\n";
+}
+
+// тест, который ищет числа, но они отсутствуют
+void test3()
+{
+    testNum += 1;
+    std::cout << "------\n";
+    std::cout << "ТЕСТ " << testNum << "\n";
+    std::cout << "------\n";
+    const std::string text = "5rt\nyhu8f\tyyuij hgfd\nttyh\tdgg";
+    registerBeginParse(beginParseNum);
+    registerEndParse(endParseNum);
+    registerCallbackNum(printNum);
+    registerCallbackStr(passStr);
+    if (!parse(text))
+        std::cout << "Не все callback функции зарегистрированы!\n";
+}
+
+ // тест, который ищет строки, но они отсутствуют
+void test4()
+{
+    testNum += 1;
+    std::cout << "------\n";
+    std::cout << "ТЕСТ " << testNum << "\n";
+    std::cout << "------\n";
+    const std::string text = "4 56\t68\n43 89\n7 43\t9 78";
+    registerBeginParse(beginParseStr);
+    registerEndParse(endParseStr);
+    registerCallbackNum(passNum);
+    registerCallbackStr(printStr);
     if (!parse(text))
         std::cout << "Не все callback функции зарегистрированы!\n";
 }
@@ -83,4 +137,6 @@ int main()
     test1();
     test1();
     test2();
+    test3();
+    test4();
 }
