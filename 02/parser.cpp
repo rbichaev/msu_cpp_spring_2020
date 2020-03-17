@@ -44,7 +44,7 @@ void registerCallbackStr(strParse callbackFoo)
 }
 
 // парсинг
-bool parse(const std::string *text)
+bool parse(const std::string &text)
 {
     // проверяем, зарегистрированы ли все callback функции
     if ((beginParseDeclared & endParseDeclared & numParseDeclared & strParseDeclared) == false)
@@ -58,18 +58,18 @@ bool parse(const std::string *text)
     const std::string separators("\n\t ");
 
     // цикл парсинга
-    while (std::string::npos != (begin_index = text->find_first_not_of(separators, end_index)))
+    while (std::string::npos != (begin_index = text.find_first_not_of(separators, end_index)))
     {
-        if (std::string::npos == (end_index = text->find_first_of(separators, begin_index)))
-            word = text->substr(begin_index);
+        if (std::string::npos == (end_index = text.find_first_of(separators, begin_index)))
+            word = text.substr(begin_index);
         else
-            word = text->substr(begin_index, end_index - begin_index);
+            word = text.substr(begin_index, end_index - begin_index);
 
         // проверяем, число ли это
         if (std::all_of(word.begin(), word.end(), isdigit))
-            numParseCallback(&word);
+            numParseCallback(word);
         else
-            strParseCallback(&word);
+            strParseCallback(word);
     }
     endParseCallback();
     return true;
