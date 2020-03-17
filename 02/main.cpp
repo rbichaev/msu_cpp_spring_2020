@@ -1,8 +1,7 @@
 #include <iostream>
 #include <algorithm>
 #include <string>
-#include <cstring>
-#include <cmath>
+// #include <cmath>
 #include "parser.h"
 
 int testNum = 0;
@@ -12,13 +11,13 @@ bool wereNums;
 bool wereStrs;
 
 // callback функции, вызываемые перед началом парсинга
-void beginParseNum(const std::string text)
+void beginParseNum(const std::string &text)
 {
     wereNums = false;
     std::cout << "Начало парсинга: поиск токенов-чисел в стоке \"" << text << "\"" << '\n';
 }
 
-void beginParseStr(const std::string text)
+void beginParseStr(const std::string &text)
 {
     wereStrs = false;
     std::cout << "Начало парсинга: поиск токенов-строк в строке \"" << text << "\"" << '\n';
@@ -40,7 +39,7 @@ void endParseStr()
 }
 
 // callback функция, которая выводит число
-void printNum(std::string num)
+void printNum(int num)
 {
     if (!wereNums)
     {
@@ -51,10 +50,10 @@ void printNum(std::string num)
 }
 
 // callback функция, которая ничего не делает с числом
-void passNum(std::string num) {}
+void passNum(int num) {}
 
 // callback функция, которая выводит строку
-void printStr(std::string str)
+void printStr(const std::string &str)
 {
     if (!wereStrs)
     {
@@ -65,7 +64,7 @@ void printStr(std::string str)
 }
 
 // callback функция, которая ничего не делает со строкой
-void passStr(std::string str) {}
+void passStr(const std::string &str) {}
 
 // тест, который ищет числа
 void test1()

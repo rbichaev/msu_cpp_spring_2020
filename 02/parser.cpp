@@ -1,6 +1,5 @@
 #include <iostream>
 #include <string>
-#include <cstring>
 #include <algorithm>
 #include "parser.h"
 
@@ -45,7 +44,7 @@ void registerCallbackStr(strParse callbackFoo)
 }
 
 // парсинг
-bool parse(const std::string text)
+bool parse(const std::string &text)
 {
     // проверяем, зарегистрированы ли все callback функции
     if ((beginParseDeclared & endParseDeclared & numParseDeclared & strParseDeclared) == false)
@@ -68,7 +67,7 @@ bool parse(const std::string text)
 
         // проверяем, число ли это
         if (std::all_of(word.begin(), word.end(), isdigit))
-            numParseCallback(word);
+            numParseCallback(std::stoi(word));
         else
             strParseCallback(word);
     }
