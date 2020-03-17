@@ -11,16 +11,16 @@ bool wereNums;
 bool wereStrs;
 
 // callback функции, вызываемые перед началом парсинга
-void beginParseNum(const std::string &text)
+void beginParseNum(const std::string *text)
 {
     wereNums = false;
-    std::cout << "Начало парсинга: поиск токенов-чисел в стоке \"" << text << "\"" << '\n';
+    std::cout << "Начало парсинга: поиск токенов-чисел в стоке \"" << *text << "\"" << '\n';
 }
 
-void beginParseStr(const std::string &text)
+void beginParseStr(const std::string *text)
 {
     wereStrs = false;
-    std::cout << "Начало парсинга: поиск токенов-строк в строке \"" << text << "\"" << '\n';
+    std::cout << "Начало парсинга: поиск токенов-строк в строке \"" << *text << "\"" << '\n';
 }
 
 // callback функции, вызываемые в конце парсинга
@@ -39,32 +39,32 @@ void endParseStr()
 }
 
 // callback функция, которая выводит число
-void printNum(int num)
+void printNum(const std::string *num)
 {
     if (!wereNums)
     {
         wereNums = true;
         std::cout << "Найдены числа:\n";
     }
-    std::cout << num << '\n';
+    std::cout << *num << '\n';
 }
 
 // callback функция, которая ничего не делает с числом
-void passNum(int num) {}
+void passNum(const std::string *num) {}
 
 // callback функция, которая выводит строку
-void printStr(const std::string &str)
+void printStr(const std::string *str)
 {
     if (!wereStrs)
     {
         wereStrs = true;
         std::cout << "Найдены строки:\n";
     }
-    std::cout << str << '\n';
+    std::cout << *str << '\n';
 }
 
 // callback функция, которая ничего не делает со строкой
-void passStr(const std::string &str) {}
+void passStr(const std::string *str) {}
 
 // тест, который ищет числа
 void test1()
@@ -73,13 +73,13 @@ void test1()
     std::cout << "------\n";
     std::cout << "ТЕСТ " << testNum << "\n";
     std::cout << "------\n";
-    const std::string text = "44 rt\n5 \t6g tyu 523\nty6\t903 46";
+    const std::string text = "4554654876468784 rt\n5 \t6g tyu 523\nty6\t903 46";
     registerBeginParse(beginParseNum);
     // регистрируем callback функцию endParse в зависимости от номера теста
     if (testNum > 1) registerEndParse(endParseNum);
     registerCallbackNum(printNum);
     registerCallbackStr(passStr);
-    if (!parse(text))
+    if (!parse(&text))
         std::cout << "Не все callback функции зарегистрированы!\n";
 }
 
@@ -95,7 +95,7 @@ void test2()
     registerEndParse(endParseStr);
     registerCallbackNum(passNum);
     registerCallbackStr(printStr);
-    if (!parse(text))
+    if (!parse(&text))
         std::cout << "Не все callback функции зарегистрированы!\n";
 }
 
@@ -111,7 +111,7 @@ void test3()
     registerEndParse(endParseNum);
     registerCallbackNum(printNum);
     registerCallbackStr(passStr);
-    if (!parse(text))
+    if (!parse(&text))
         std::cout << "Не все callback функции зарегистрированы!\n";
 }
 
@@ -127,7 +127,7 @@ void test4()
     registerEndParse(endParseStr);
     registerCallbackNum(passNum);
     registerCallbackStr(printStr);
-    if (!parse(text))
+    if (!parse(&text))
         std::cout << "Не все callback функции зарегистрированы!\n";
 }
 
