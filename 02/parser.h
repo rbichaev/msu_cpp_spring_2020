@@ -1,6 +1,6 @@
 using beginParse = void (*)(const std::string &);
 using endParse = void (*)();
-using numParse = void (*)(const std::string &);
+using numParse = void (*)(int);
 using strParse = void (*)(const std::string &);
 
 void registerBeginParse(beginParse callbackFoo);

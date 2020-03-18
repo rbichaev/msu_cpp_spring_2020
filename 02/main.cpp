@@ -39,7 +39,7 @@ void endParseStr()
 }
 
 // callback функция, которая выводит число
-void printNum(const std::string &num)
+void printNum(int num)
 {
     if (!wereNums)
     {
@@ -50,7 +50,7 @@ void printNum(const std::string &num)
 }
 
 // callback функция, которая ничего не делает с числом
-void passNum(const std::string &num) {}
+void passNum(int num) {}
 
 // callback функция, которая выводит строку
 void printStr(const std::string &str)
@@ -73,7 +73,7 @@ void test1()
     std::cout << "------\n";
     std::cout << "ТЕСТ " << testNum << "\n";
     std::cout << "------\n";
-    const std::string text = "4554654876468784 rt\n5 \t6g tyu 523\nty6\t903 46";
+    const std::string text = "455 rt\n5 \t6g tyu 523\nty6\t903 46";
     registerBeginParse(beginParseNum);
     // регистрируем callback функцию endParse в зависимости от номера теста
     if (testNum > 1) registerEndParse(endParseNum);

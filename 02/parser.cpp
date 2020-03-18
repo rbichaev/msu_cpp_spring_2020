@@ -67,7 +67,7 @@ bool parse(const std::string &text)
 
         // проверяем, число ли это
         if (std::all_of(word.begin(), word.end(), isdigit))
-            numParseCallback(word);
+            numParseCallback(std::stoi(word));
         else
             strParseCallback(word);
     }
