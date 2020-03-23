@@ -15,12 +15,12 @@ void printTest()
 // выводим на экран матрицу
 void printMatrix(const Matrix &matrix)
 {
-    int rows = matrix.getRows();
-    int columns = matrix.getColumns();
+    size_t rows = matrix.getRows();
+    size_t columns = matrix.getColumns();
 
-    for (int i=0; i<rows; i++)
+    for (size_t i=0; i<rows; i++)
     {
-        for (int j=0; j<columns; j++)
+        for (size_t j=0; j<columns; j++)
         {
             std::cout << std::setw(6) << matrix[i][j];
         }
@@ -45,14 +45,14 @@ void isEqual(const Matrix &matrix_1, const Matrix &matrix_2)
 }
 
 // тест: умножение матрицы на число
-void test1(int rows, int columns)
+void test1(size_t rows, size_t columns)
 {
     printTest();
 
     Matrix matrix(rows, columns);
-    for (int i=0; i<rows; i++)
+    for (size_t i=0; i<rows; i++)
     {
-        for (int j=0; j<columns; j++)
+        for (size_t j=0; j<columns; j++)
         {
             matrix[i][j] = i - j;
         }
@@ -65,23 +65,23 @@ void test1(int rows, int columns)
 }
 
 // тест: проверка равенства матриц
-void test2(int rows_1, int columns_1, int rows_2, int columns_2)
+void test2(size_t rows_1, size_t columns_1, size_t rows_2, size_t columns_2)
 {
     printTest();
 
     Matrix matrix_1(rows_1, columns_1);
-    for (int i=0; i<rows_1; i++)
+    for (size_t i=0; i<rows_1; i++)
     {
-        for (int j=0; j<columns_1; j++)
+        for (size_t j=0; j<columns_1; j++)
         {
             matrix_1[i][j] = 2*i - j;
         }
     }
 
     Matrix matrix_2(rows_2, columns_2);
-    for (int i=0; i<rows_2; i++)
+    for (size_t i=0; i<rows_2; i++)
     {
-        for (int j=0; j<columns_2; j++)
+        for (size_t j=0; j<columns_2; j++)
         {
             matrix_2[i][j] = 2*i + 4*j;
         }
@@ -96,22 +96,22 @@ void test2(int rows_1, int columns_1, int rows_2, int columns_2)
 }
 
 // проверка равенства матрицы себе же
-void test3(int rows, int columns)
+void test3(size_t rows, size_t columns)
 {
     printTest();
 
     Matrix matrix_1(rows, columns);
     
-    for (int i=0; i<rows; i++)
+    for (size_t i=0; i<rows; i++)
     {
-        for (int j=0; j<columns; j++)
+        for (size_t j=0; j<columns; j++)
         {
             matrix_1[i][j] = 2*i - j;
         }
     }
     
     // создадим копию для проверки работы конструктора копий
-    Matrix matrix_2 = matrix_1;
+    const Matrix matrix_2 = matrix_1;
 
     std::cout << "Матрица 1 имеет вид:" << std::endl;
     printMatrix(matrix_1);

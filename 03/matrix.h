@@ -4,31 +4,33 @@
 // указателей на объекты класса строк(Rows)
 class Matrix
 {
-    int rows;
-    int columns;
+    size_t rows;
+    size_t columns;
 
 public:
 
     class Rows
     {
-        int len;
+        size_t len;
     public:
         int *mass;
-        Rows(int columns);
+        Rows(size_t columns);
         ~Rows() { delete [] mass; }
-        int &operator[](int i) const { return mass[i]; };
-        int getLen() const { return len; }
+        int &operator[](int i) { return mass[i]; };
+        const int &operator[](int i) const { return mass[i]; };
+        size_t getLen() const { return len; }
     };
 
     Rows **massRows;
 
-    Matrix(int rows, int columns);
+    Matrix(size_t rows, size_t columns);
     Matrix(const Matrix &obj);
     ~Matrix();
-    Rows &operator[](int row) const { return *massRows[row]; };
+    Rows &operator[](size_t row) { return *massRows[row]; };
+    const Rows &operator[](size_t row) const { return *massRows[row]; };
     void operator*=(int num);
     bool operator==(const Matrix &matrix) const;
     bool operator!=(const Matrix &matrix) const;
-    int getRows() const { return rows; } 
-    int getColumns() const { return columns; };
+    size_t getRows() const { return rows; } 
+    size_t getColumns() const { return columns; };
 };
