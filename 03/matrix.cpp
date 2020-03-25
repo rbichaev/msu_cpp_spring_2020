@@ -84,16 +84,5 @@ bool Matrix::operator==(const Matrix &matrix) const
 // переопределение оператора !=
 bool Matrix::operator!=(const Matrix &matrix) const
 {
-    if ((rows != matrix.getRows()) || (columns != matrix.getColumns()))
-        return true;
-        
-    for (size_t i=0; i<rows; i++)
-    {
-        for (size_t j=0; j<columns; j++)
-        {
-            if ((*massRows[i])[j] != matrix[i][j])
-                return true;
-        }
-    }
-    return false;
+    return !this->operator==(matrix);
 }
