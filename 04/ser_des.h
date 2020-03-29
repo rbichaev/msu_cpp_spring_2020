@@ -1,4 +1,5 @@
 #include <iostream>
+#include <algorithm>
 
 enum Error
 {
@@ -55,7 +56,7 @@ public:
     // используется для реализации интерфейса функции, указанной в структуре Data,
     // переменные которой подлежат записи
     template <class ...Args>
-    Error operator()(Args ...args) const { return print(args...); }
+    Error operator()(const Args &...args) const { return print(args...); }
 
 
     // функции, реализующие запись переменных; 
@@ -63,9 +64,10 @@ public:
 
     // несколько аргументов
     template <class T, class ...Args>
-    Error print(const T val, Args ...args) const
+    Error print(const T val, const Args ...args) const
     {
         streamSer << std::boolalpha << val << sep;
+        streamSer << std::noboolalpha;
         return print(args...);
     }
 
@@ -74,6 +76,7 @@ public:
     Error print(const T val) const
     {
         streamSer << std::boolalpha << val << sep;
+        streamSer << std::noboolalpha;
         return Error::NoError;
     }
 };
@@ -137,37 +140,45 @@ public:
     {
         std::string text;
         streamDes >> text;
-        int64_t v = std::stoi(text);
-        val = v;
-        return read(args...);
+        if (std::all_of(text.begin(), text.end(), isdigit))
+            {                   
+                int64_t v = std::stoi(text);
+                val = v;
+                return read(args...);
+            }
+            else
+                return Error::CorruptedArchive;
     }
 
-    // один аргумент типа bool
-    template <class T, typename mns::enableif<mns::isbool<T>::value>::type * = nullptr>
+    // один аргумент
+    template <class T>
     Error read(T &val)
     {
         std::string text;
         streamDes >> text;
 
+        // проверяем, является ли значение bool
         if (text == "true")
+        {
             val = true;
+            return Error::NoError;
+        }
         else if (text == "false")
+        {
             val = false;
+            return Error::NoError;
+        }
         else
-            return Error::CorruptedArchive;
-
-        return Error::NoError;
+        {
+            // проверяем, является ли значение числом
+            if (std::all_of(text.begin(), text.end(), isdigit))
+            {                   
+                int64_t v = std::stoi(text);
+                val = v;
+                return Error::NoError;
+            }
+            else
+                return Error::CorruptedArchive;
+        }
     }
-
-    // один аргумент типа НЕ bool
-    template <class T, class ...Args, typename mns::enableif<!mns::isbool<T>::value>::type * = nullptr>
-    Error read(T &val)
-    {
-        std::string text;
-        streamDes >> text;
-        int64_t v = std::stoi(text);
-        val = v;
-        return Error::NoError;
-    }
-   
 };
