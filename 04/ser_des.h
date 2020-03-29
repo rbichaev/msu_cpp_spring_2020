@@ -141,17 +141,17 @@ public:
         std::string text;
         streamDes >> text;
         if (std::all_of(text.begin(), text.end(), isdigit))
-            {                   
-                int64_t v = std::stoi(text);
-                val = v;
-                return read(args...);
-            }
-            else
-                return Error::CorruptedArchive;
+        {                   
+            int64_t v = std::stoi(text);
+            val = v;
+            return read(args...);
+        }
+        else
+            return Error::CorruptedArchive;
     }
 
-    // один аргумент
-    template <class T>
+    // один аргумент типа bool
+    template <class T, typename mns::enableif<mns::isbool<T>::value>::type * = nullptr>
     Error read(T &val)
     {
         std::string text;
@@ -169,16 +169,24 @@ public:
             return Error::NoError;
         }
         else
-        {
-            // проверяем, является ли значение числом
-            if (std::all_of(text.begin(), text.end(), isdigit))
-            {                   
-                int64_t v = std::stoi(text);
-                val = v;
-                return Error::NoError;
-            }
-            else
-                return Error::CorruptedArchive;
+            return Error::CorruptedArchive;
+    }
+
+    // один аргумент - число 
+    template <class T, typename mns::enableif<!mns::isbool<T>::value>::type * = nullptr>
+    Error read(T &val)
+    {
+        std::string text;
+        streamDes >> text;
+        
+        // проверяем, что это число
+        if (std::all_of(text.begin(), text.end(), isdigit))
+        {                   
+            int64_t v = std::stoi(text);
+            val = v;
+            return Error::NoError;
         }
+        else
+            return Error::CorruptedArchive;
     }
 };
