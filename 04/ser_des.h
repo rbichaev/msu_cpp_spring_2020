@@ -24,12 +24,12 @@ public:
 
     // вызывается явно в функции main для начала записи
     template <class Object>
-    Error save(Object &object) { return object.doSth(*this); }
+    Error save(Object &object) const { return object.doSth(*this); }
 
 
     // реализация раскрутки аргументов
     template<class T, class ...Args>
-    Error process(T &val, Args &...args)
+    Error process(const T &val, const Args &...args) const
     {
         if (print(val) == Error::NoError)
             return process(args...);
@@ -38,7 +38,7 @@ public:
     }
 
     template<class T>
-    Error process(T &val)
+    Error process(const T &val) const
     {
         return print(val);
     }
@@ -47,12 +47,12 @@ public:
     // используется для реализации интерфейса функции, указанной в структуре Data,
     // переменные которой подлежат записи
     template <class ...Args>
-    Error operator()(Args &...args) { return process(args...); }
+    Error operator()(const Args &...args) const { return process(args...); }
     
 
     // запись в файл
     template <class T>
-    Error print(T &val)
+    Error print(const T &val) const
     {
         streamSer << std::boolalpha << val << sep;
         streamSer << std::noboolalpha;
