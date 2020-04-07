@@ -74,6 +74,11 @@ size_t BigInt::getLen() const
     return len;
 }
 
+const char *BigInt::getNumbers() const
+{
+    return numbers;
+}
+
 // есть ли у числа минус в записи
 // (считаем, что для нуля positive = true)
 bool BigInt::isPositive() const
@@ -84,7 +89,7 @@ bool BigInt::isPositive() const
 // является ли число нулем
 bool BigInt::isZero() const
 {
-    if ((len == 1) && (numbers[0] == 48))
+    if ((len == 1) && (numbers[0] == '0'))
         return true;
     else
         return false;
@@ -98,9 +103,11 @@ size_t getFirstNeq(const BigInt &bint_1, const BigInt &bint_2)
         return -1;
 
     size_t res;
+    const char *numbers_1 = bint_1.getNumbers();
+    const char *numbers_2 = bint_2.getNumbers();
     for (size_t i=0; i<bint_1.getLen(); i++)
     {
-        if (bint_1.numbers[i] != bint_2.numbers[i])
+        if (numbers_1[i] != numbers_2[i])
         {
             res = i;
             break;
@@ -109,132 +116,34 @@ size_t getFirstNeq(const BigInt &bint_1, const BigInt &bint_2)
     return res;
 }
 
-// оператор сложения
-// анализирует знаки двух чисел и число цифр в них,
-// на основе этого вызывает либо метод add, либо sub
-// с соответствующим результирующим знаком и с нужным
-// порядком слагаемых
-BigInt operator+(const BigInt &bint_1, const BigInt &bint_2)
-{
-    BigInt r;
-    if (bint_1.positive && bint_2.positive)
-        r = bint_1.add(bint_2, true);
-    else if (!bint_1.positive && !bint_2.positive)
-        r = bint_1.add(bint_2, false);
-    else if (bint_1.positive && !bint_2.positive)
-    {
-        if (bint_1.getLen() > bint_2.getLen())
-            r = bint_1.sub(bint_2, true);
-        else if (bint_1.getLen() == bint_2.getLen())
-        {
-            size_t neq_ind = getFirstNeq(bint_1, bint_2);
-            if (bint_1.numbers[neq_ind] >= bint_2.numbers[neq_ind])
-                r = bint_1.sub(bint_2, true);
-            else
-                r = bint_2.sub(bint_1, false);
-        }
-        else
-            r = bint_2.sub(bint_1, false);
-    }
-    else
-    {
-        if (bint_1.getLen() > bint_2.getLen())
-            r = bint_1.sub(bint_2, false);
-        else if (bint_1.getLen() == bint_2.getLen())
-        {
-            size_t neq_ind = getFirstNeq(bint_1, bint_2);
-            if (bint_1.numbers[neq_ind] >= bint_2.numbers[neq_ind])
-                r = bint_1.sub(bint_2, false);
-            else
-                r = bint_2.sub(bint_1, true);
-        }
-        else
-            r = bint_2.sub(bint_1, true);
-    }
-
-    return r;
-}
-
-// оператор вычитания
-// анализирует знаки двух чисел и число цифр в них,
-// на основе этого вызывает либо метод add, либо sub
-// с соответствующим результирующим знаком и с нужным
-// порядком слагаемых
-BigInt operator-(const BigInt &bint_1, const BigInt &bint_2)
-{
-    BigInt r;
-    if (bint_1.isPositive() && !bint_2.isPositive())
-        r = bint_1.add(bint_2, true);
-    else if (!bint_1.isPositive() && bint_2.isPositive())
-        r = bint_1.add(bint_2, false);
-    else if (bint_1.isPositive() && bint_2.isPositive())
-    {
-        if (bint_1.getLen() > bint_2.getLen())
-            r = bint_1.sub(bint_2, true);
-        else if (bint_1.getLen() == bint_2.getLen())
-        {
-            size_t neq_ind = getFirstNeq(bint_1, bint_2);
-            if (bint_1.numbers[neq_ind] >= bint_2.numbers[neq_ind])
-                r = bint_1.sub(bint_2, true);
-            else
-                r = bint_2.sub(bint_1, false);
-        }
-        else
-            r = bint_2.sub(bint_1, false);
-    }
-    else
-    {
-        if (bint_1.getLen() > bint_2.getLen())
-            r = bint_1.sub(bint_2, false);
-        else if (bint_1.getLen() == bint_2.getLen())
-        {
-            size_t neq_ind = getFirstNeq(bint_1, bint_2);
-            if (bint_1.numbers[neq_ind] >= bint_2.numbers[neq_ind])
-                r = bint_1.sub(bint_2, false);
-            else
-                r = bint_2.sub(bint_1, true);
-        }
-        else
-            r = bint_2.sub(bint_1, true);
-    }
-
-    return r;
-}
-
-// унарный минус
-BigInt BigInt::operator-()
-{
-    BigInt r = *this;
-    r.positive = !positive;
-    return r;
-}
-
 // функция, реализующая сложение двух чисел
 // анализирует длины слагаемых, заполянет лишнее нулями
 // и складывает
-BigInt BigInt::add(const BigInt &bint, bool pos) const
+BigInt add(const BigInt &bint_1, const BigInt &bint_2, bool pos)
 {
-    size_t len_1 = len;
-    size_t len_2 = bint.getLen();
+    size_t len_1 = bint_1.getLen();
+    size_t len_2 = bint_2.getLen();
     size_t len_result = std::max(len_1, len_2) + 1;
     char *num_1 = new char[len_result+1];
     char *num_2 = new char[len_result+1];
     char *result = new char[len_result+1];
-    num_1[0] = 48;
-    num_2[0] = 48;
+    const char *numbers_1 = bint_1.getNumbers();
+    const char *numbers_2 = bint_2.getNumbers();
+    num_1[0] = '0';
+    num_2[0] = '0';
 
     if (len_1 > len_2)
     {
         size_t diff = len_1 - len_2;
 
         for (int i=0; i<diff; i++)
-            num_2[i+1] = 48;
+            num_2[i+1] = '0';
 
         for (int i=0; i<len_2; i++)
-            num_2[i+1+diff] = bint.numbers[i];
+            num_2[i+1+diff] = numbers_2[i];
 
         for (int i=0; i<len_1; i++)
-            num_1[i+1] = numbers[i];
+            num_1[i+1] = numbers_1[i];
     }
 
     if (len_2 >= len_1)
@@ -242,13 +151,13 @@ BigInt BigInt::add(const BigInt &bint, bool pos) const
         size_t diff = len_2 - len_1;
 
         for (int i=0; i<diff;i++)
-            num_2[i+1] = 48;
+            num_2[i+1] = '0';
 
         for (int i=0; i<len_1; i++)
-            num_2[i+1+diff] = numbers[i];
+            num_2[i+1+diff] = numbers_1[i];
 
         for (int i=0; i<len_2; i++)
-            num_1[i+1] = bint.numbers[i];
+            num_1[i+1] = numbers_2[i];
     }
     
     int curr_memory = 0;
@@ -261,8 +170,8 @@ BigInt BigInt::add(const BigInt &bint, bool pos) const
     {
         i_num_1 = int(num_1[i]);
         i_num_2 = int(num_2[i]);
-        if (i_num_1 == 0) i_num_1 = 48;
-        if (i_num_2 == 0) i_num_2 = 48;
+        if (i_num_1 == 0) i_num_1 = '0';
+        if (i_num_2 == 0) i_num_2 = '0';
         curr_num = i_num_1-48 + i_num_2-48;
         if (curr_num > 9)
         {
@@ -278,7 +187,7 @@ BigInt BigInt::add(const BigInt &bint, bool pos) const
     
     // проверяем наличие нуля в начале и отбрасываем его
     // если он есть
-    if (result[0] == 48)
+    if (result[0] == '0')
     {
         char *cut_result = new char[len_result];
         for (int i=0; i<len_result-1; i++)
@@ -299,25 +208,26 @@ BigInt BigInt::add(const BigInt &bint, bool pos) const
 
 // функция реализующая вычитание двух чисел, первое
 // из которых больше (проверка идет в операторе вычитания)
-BigInt BigInt::sub(const BigInt &bint, bool pos) const
+BigInt sub(const BigInt &bint_1, const BigInt &bint_2, bool pos)
 {
-    size_t len_1 = len;
-    size_t len_2 = bint.getLen();
+    size_t len_1 = bint_1.getLen();
+    size_t len_2 = bint_2.getLen();
     size_t len_result = std::max(len_1, len_2);
     char *num_1 = new char[len_result+1];
     char *num_2 = new char[len_result+1];
     char *result = new char[len_result+1];
-
+    const char *numbers_1 = bint_1.getNumbers();
+    const char *numbers_2 = bint_2.getNumbers();
     size_t diff = len_1 - len_2;
 
     for (int i=0; i<diff; i++)
-        num_2[i] = 48;
+        num_2[i] = '0';
 
     for (int i=0; i<len_2; i++)
-        num_2[i+diff] = bint.numbers[i];
+        num_2[i+diff] = numbers_2[i];
 
     for (int i=0; i<len_1; i++)
-        num_1[i] = numbers[i];
+        num_1[i] = numbers_1[i];
 
     int curr_digit = 0;
     int digit_1;
@@ -329,8 +239,8 @@ BigInt BigInt::sub(const BigInt &bint, bool pos) const
     {
         i_num_1 = int(num_1[i]);
         i_num_2 = int(num_2[i]);
-        if (i_num_1 == 0) i_num_1 = 48;
-        if (i_num_2 == 0) i_num_2 = 48;
+        if (i_num_1 == 0) i_num_1 = '0';
+        if (i_num_2 == 0) i_num_2 = '0';
         digit_1 = i_num_1 - 48;
         digit_2 = i_num_2 - 48;
         curr_digit = digit_1 - digit_2;
@@ -355,7 +265,7 @@ BigInt BigInt::sub(const BigInt &bint, bool pos) const
     size_t num_zeros = 0;
     for (size_t i=0; i<len_result; i++)
     {
-        if (result[i] != 48) break;
+        if (result[i] != '0') break;
         num_zeros += 1;
     }
 
@@ -376,6 +286,112 @@ BigInt BigInt::sub(const BigInt &bint, bool pos) const
 
     return rs;
 }
+
+// оператор сложения
+// анализирует знаки двух чисел и число цифр в них,
+// на основе этого вызывает либо метод add, либо sub
+// с соответствующим результирующим знаком и с нужным
+// порядком слагаемых
+BigInt operator+(const BigInt &bint_1, const BigInt &bint_2)
+{
+    BigInt r;
+    const char *numbers_1 = bint_1.getNumbers();
+    const char *numbers_2 = bint_2.getNumbers();
+    if (bint_1.isPositive() && bint_2.isPositive())
+        r = add(bint_1, bint_2, true);
+    else if (!bint_1.isPositive() && !bint_2.isPositive())
+        r = add(bint_1, bint_2, false);
+    else if (bint_1.isPositive() && !bint_2.isPositive())
+    {
+        if (bint_1.getLen() > bint_2.getLen())
+            r = sub(bint_1, bint_2, true);
+        else if (bint_1.getLen() == bint_2.getLen())
+        {
+            size_t neq_ind = getFirstNeq(bint_1, bint_2);
+            if (numbers_1[neq_ind] >= numbers_2[neq_ind])
+                r = sub(bint_1, bint_2, true);
+            else
+                r = sub(bint_2, bint_1, false);
+        }
+        else
+            r = sub(bint_2, bint_1, false);
+    }
+    else
+    {
+        if (bint_1.getLen() > bint_2.getLen())
+            r = sub(bint_1, bint_2, false);
+        else if (bint_1.getLen() == bint_2.getLen())
+        {
+            size_t neq_ind = getFirstNeq(bint_1, bint_2);
+            if (numbers_1[neq_ind] >= numbers_2[neq_ind])
+                r = sub(bint_1, bint_2, false);
+            else
+                r = sub(bint_2, bint_1, true);
+        }
+        else
+            r = sub(bint_2, bint_1, true);
+    }
+
+    return r;
+}
+
+// оператор вычитания
+// анализирует знаки двух чисел и число цифр в них,
+// на основе этого вызывает либо метод add, либо sub
+// с соответствующим результирующим знаком и с нужным
+// порядком слагаемых
+BigInt operator-(const BigInt &bint_1, const BigInt &bint_2)
+{
+    BigInt r;
+    const char *numbers_1 = bint_1.getNumbers();
+    const char *numbers_2 = bint_2.getNumbers();
+    if (bint_1.isPositive() && !bint_2.isPositive())
+        r = add(bint_1, bint_2, true);
+    else if (!bint_1.isPositive() && bint_2.isPositive())
+        r = add(bint_1, bint_2, false);
+    else if (bint_1.isPositive() && bint_2.isPositive())
+    {
+        if (bint_1.getLen() > bint_2.getLen())
+            r = sub(bint_1, bint_2, true);
+        else if (bint_1.getLen() == bint_2.getLen())
+        {
+            size_t neq_ind = getFirstNeq(bint_1, bint_2);
+            if (numbers_1[neq_ind] >= numbers_2[neq_ind])
+                r = sub(bint_1, bint_2, true);
+            else
+                r = sub(bint_2, bint_1, false);
+        }
+        else
+            r = sub(bint_2, bint_1, false);
+    }
+    else
+    {
+        if (bint_1.getLen() > bint_2.getLen())
+            r = sub(bint_1, bint_2, false);
+        else if (bint_1.getLen() == bint_2.getLen())
+        {
+            size_t neq_ind = getFirstNeq(bint_1, bint_2);
+            if (numbers_1[neq_ind] >= numbers_2[neq_ind])
+                r = sub(bint_1, bint_2, false);
+            else
+                r = sub(bint_2, bint_1, true);
+        }
+        else
+            r = sub(bint_2, bint_1, true);
+    }
+
+    return r;
+}
+
+// унарный минус
+BigInt BigInt::operator-()
+{
+    BigInt r = *this;
+    r.positive = !positive;
+    return r;
+}
+
+
 
 // операторы сравнения
 
@@ -408,8 +424,9 @@ std::ostream &operator<<(std::ostream &stream, const BigInt &bint)
 {
     size_t l = bint.getLen();
     bool pos = bint.isPositive();
+    const char *numbers = bint.getNumbers();
     if (!pos) stream << '-';
     for (int i=0; i<l; i++)
-        stream << bint.numbers[i];
+        stream << numbers[i];
     return stream;    
 }
