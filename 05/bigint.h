@@ -1,9 +1,9 @@
 class BigInt
 {
+    char *numbers;
     size_t len;
     bool positive = true;
 public:
-    char *numbers;
     BigInt(const char *x);
     BigInt();
     BigInt(const BigInt &bint);
