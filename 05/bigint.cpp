@@ -172,13 +172,13 @@ BigInt add(const BigInt &bint_1, const BigInt &bint_2, bool pos)
         i_num_2 = int(num_2[i]);
         if (i_num_1 == 0) i_num_1 = '0';
         if (i_num_2 == 0) i_num_2 = '0';
-        curr_num = i_num_1-48 + i_num_2-48;
+        curr_num = i_num_1-'0' + i_num_2-'0';
         if (curr_num > 9)
         {
             curr_memory = (int)curr_num / 10;
             curr_num = curr_num % 10;            
         }
-        result[i] = (char)(curr_num + prev_memory) + 48;
+        result[i] = (char)(curr_num + prev_memory) + '0';
         prev_memory = curr_memory;
         curr_memory = 0;
     }
@@ -241,8 +241,8 @@ BigInt sub(const BigInt &bint_1, const BigInt &bint_2, bool pos)
         i_num_2 = int(num_2[i]);
         if (i_num_1 == 0) i_num_1 = '0';
         if (i_num_2 == 0) i_num_2 = '0';
-        digit_1 = i_num_1 - 48;
-        digit_2 = i_num_2 - 48;
+        digit_1 = i_num_1 - '0';
+        digit_2 = i_num_2 - '0';
         curr_digit = digit_1 - digit_2;
         if (digit_1 < digit_2)
         {
@@ -256,7 +256,7 @@ BigInt sub(const BigInt &bint_1, const BigInt &bint_2, bool pos)
             }
             curr_digit += 10;
         }
-        result[i] = (char)(curr_digit) + 48;
+        result[i] = (char)(curr_digit) + '0';
     }
     
     BigInt rs;
