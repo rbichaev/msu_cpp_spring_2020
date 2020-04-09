@@ -55,10 +55,13 @@ std::string format(const char *text, const Args ...args)
             }
             if (str_number != "")
             {
-                if (!std::all_of(str_number.begin(), str_number.end(), isdigit)) throw std::runtime_error("Not number inside!");
+                if (!std::all_of(str_number.begin(), str_number.end(), isdigit))
+                    throw std::runtime_error("Not number inside!");
                 int number = std::stoi(str_number);
-                if (number >= len) throw std::runtime_error("Not enough arguments!");
-                else result += params[number];
+                if (number >= len)
+                    throw std::runtime_error("Not enough arguments!");
+                else
+                    result += params[number];
             }
         }
         if (write == true) result += text[i];
