@@ -5,19 +5,27 @@
 #include <iterator>
 #include <algorithm>
 
-// функция process распаковывает неизвестное число аргументов
-// неизвестных типов и записывает их в поток stream
+// функция fill_vector распаковывает неизвестное число аргументов
+// неизвестных типов и записывает их в вектор параметров
 template <class T>
-void process(std::stringstream &stream, const T val)
+void fill_vector(std::vector<std::string> &vec, const T &val)
 {
+    std::stringstream stream;
     stream << val;
+    std::string s;
+    stream >> s;
+    vec.push_back(s);
 }
 
 template <class T, class ...Args>
-void process(std::stringstream &stream, const T val, const Args ...args)
+void fill_vector(std::vector<std::string> &vec, const T &val, const Args &...args)
 {
-    stream << val << " ";
-    process(stream, args...);
+    std::stringstream stream;
+    stream << val;
+    std::string s;
+    stream >> s;
+    vec.push_back(s);
+    fill_vector(vec, args...);
 }
 
 // функция format принимает на вход строку, которую нужно
@@ -25,23 +33,17 @@ void process(std::stringstream &stream, const T val, const Args ...args)
 // скобок {}, внутри которых индексы аргументов, которые
 // подаются после строки
 template <class ...Args>
-std::string format(const char *text, const Args ...args)
+std::string format(const char *text, const Args &...args)
 {
-    // создаем и заполняем поток
-    std::stringstream stream;
-    process(stream, args...);
-    // разделяем строку, содержащуюся в потоке, пробелами:
-    // с помощью итератора проходим по потоку и заполняем
-    // вектор найденными значениями
-    std::istream_iterator<std::string> beg(stream), end;
-    std::vector<std::string> params(beg, end);
+    std::vector<std::string> params;
+    fill_vector(params, args...);
     size_t len = params.size();
     std::string result = "";
     bool write = true;
     
     // проходим по поданной в функцию строке и заполняем
     // выходную строку
-    for (int i=0; text[i]; i++)
+    for (size_t i=0; text[i]; i++)
     {
         if (text[i] == '{')
         {
