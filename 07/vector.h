@@ -4,7 +4,7 @@
 // класс итератор
 template <class T>
 class Iterator
-    : public std::iterator<std::forward_iterator_tag, T>
+    : public std::iterator<std::random_access_iterator_tag, T>
 {
     T *ptr_;
 public:
@@ -61,13 +61,13 @@ public:
     
     // конструкторы
     vector(size_type count)
-        : size_(count), pointer(alloc.allocate(count)) {};
+        : size_(count), pointer(alloc.allocate(count)) {}
 
     vector(size_type count, const value_type &defaultValue)
         : size_(count), pointer(alloc.allocate(count))
     {
         for (size_type i=0; i<count; i++)
-            pointer[i] = defaultValue;
+            alloc.construct(pointer + i, defaultValue);            
     }
 
     vector(std::initializer_list<value_type> init)
@@ -79,13 +79,18 @@ public:
         pointer = alloc.allocate(end - current);
         while (current != end)
         {
-            pointer[i++] = *current++;
+            alloc.construct(pointer+i, *current);
+            i++;
+            current++;
         }
     }
     
     // деструктор
     ~vector()
     {
+        for (size_type i=0; i<size_; i++)
+            alloc.destroy(pointer + i);
+
         alloc.deallocate(pointer, size_);
     }
     
@@ -122,7 +127,10 @@ public:
             min_size = newSize;
 
         for (size_type i=0; i<min_size; i++)
-            new_pointer[i] = pointer[i];
+            alloc.construct(new_pointer + i, pointer[i]);
+        
+        for (size_type i=0; i<size_; i++)
+            alloc.destroy(pointer + i);
 
         alloc.deallocate(pointer, size_);
         pointer = new_pointer;
@@ -137,7 +145,7 @@ public:
         if (newSize > old_size)
         {
             for (size_type i=old_size; i<newSize; i++)
-                pointer[i] = defaultValue;
+                alloc.construct(pointer + i, defaultValue);
         }
     }
 
@@ -177,8 +185,13 @@ public:
         resize(size_ - 1);
     }
 
-    // оператор []
-    reference operator[](size_type pos) const
+    // оператор [] const и non-const версии
+    const_reference operator[](size_type pos) const
+    {
+        return pointer[pos];
+    }
+
+    reference operator[](size_type pos)
     {
         return pointer[pos];
     }
@@ -193,7 +206,10 @@ public:
         vt_pointer new_pointer = alloc.allocate(count);
 
         for (size_type i=0; i<size_; i++)
-            new_pointer[i] = pointer[i];
+            alloc.construct(new_pointer + i, pointer[i]);
+        
+        for (size_type i=0; i<size_; i++)
+            alloc.destroy(pointer + i);  
 
         alloc.deallocate(pointer, size_);
         pointer = new_pointer;
@@ -212,8 +228,12 @@ public:
                 shift = 1;
                 continue;
             }
-            new_pointer[i - shift] = pointer[i];
+            alloc.construct(new_pointer + i - shift, pointer[i]);
         }
+
+        for (size_type i=0; i<size_; i++)
+            alloc.destroy(pointer + i);
+        
         alloc.deallocate(pointer, size_);
         pointer = new_pointer;
         size_ = size_ - 1;
@@ -233,8 +253,11 @@ public:
                 shift += 1;
                 continue;
             }
-            new_pointer[i - shift] = pointer[i];
+            alloc.construct(new_pointer + i -shift, pointer[i]);
         }
+        
+        for (size_type i=0; i<size_; i++)
+            alloc.destroy(pointer + i);
 
         alloc.deallocate(pointer, size_);
         pointer = new_pointer;
@@ -244,8 +267,11 @@ public:
     // очистка вектора
     void clear()
     {
+        for (size_type i=0; i<size_; i++)
+            alloc.destroy(pointer + i);
+
         alloc.deallocate(pointer, size_);
-        pointer = nullptr;
+        pointer = alloc.allocate(1);
         size_ = 0;
     }
-
+};

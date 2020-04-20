@@ -13,8 +13,8 @@ void printTest()
 } 
 
 // выводим значения вектора
-template <class T>
-void print(const vector<T> &vec)
+template <class TT>
+void print(const vector<TT> &vec)
 {
     for (int i=0; i<vec.size(); i++)
         std::cout << std::setw(6) << vec[i];
