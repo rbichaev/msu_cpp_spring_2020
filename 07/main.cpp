@@ -78,9 +78,27 @@ void test_3()
     std::cout << std::noboolalpha;
 }
 
+// ТЕСТ_4 (итератор)
+void test_4()
+{
+    printTest();
+    int i = 5;
+    int j = 6;
+    Iterator<int> iter1(&i);
+    Iterator<int> iter2(&j);
+    swap(iter1, iter2);
+    iter2 -= 6;
+    iter2 = 6 + iter2;
+    std::cout << *(iter2) << std::endl;
+    std::cout << std::boolalpha << (iter2[1] == *(iter2+1)) << std::endl;
+    std::cout << std::noboolalpha;
+}
+
+
 int main()
 {
     test_1();
     test_2();
     test_3();
+    test_4();
 }

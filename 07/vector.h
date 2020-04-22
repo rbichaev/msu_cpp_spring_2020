@@ -21,9 +21,46 @@ public:
         return !(*this == other);
     }
 
+    bool operator<(const Iterator<T> &other) const
+    {
+        return (ptr_ < other.ptr_);
+    }
+
+    bool operator>(const Iterator<T> &other) const
+    {
+        return !(*this < other);
+    }
+
+    bool operator<=(const Iterator<T> &other) const
+    {
+        return (ptr_ <= other.ptr);
+    }
+
+    bool operator>=(const Iterator<T> &other) const
+    {
+        return !(*this <= other);
+    }
+
     T &operator*() const
     {
         return *ptr_;
+    }
+
+    T *operator->() const
+    {
+        return ptr_;
+    }
+
+    T &operator[](size_t i) const
+    {
+        return *(ptr_ + i);
+    }
+
+    void swap(Iterator &it_1, Iterator &it_2)
+    {
+        T *tmp = it_1.ptr_;
+        it_1.ptr_ = it_2.ptr_;
+        it_2.ptr = tmp;
     }
 
     Iterator &operator+(size_t i)
@@ -32,12 +69,68 @@ public:
         return *this;
     }
 
+    Iterator &operator-(size_t i)
+    {
+        ptr_ -= i;
+        return *this;
+    }
+
+    Iterator &operator-(const Iterator &it)
+    {
+        ptr_ -= it.ptr_;
+        return *this;
+    }
+
     Iterator &operator++()
     {
         ++ptr_;
         return *this;
     }
+
+    Iterator &operator++(int notused)
+    {
+        T *save = ptr_;
+        ptr_ += 1;
+        return save;
+    }
+
+    Iterator &operator--()
+    {
+        --ptr_;
+        return *this;
+    }
+
+    Iterator &operator--(int notused)
+    {
+        T *save = ptr_;
+        ptr_ -= 1;
+        return save;
+    }
+
+    Iterator &operator+=(size_t i)
+    {
+        ptr_ += i;
+        return *this;
+    }
+
+    template <class Y>
+    friend Iterator<Y> &operator+(size_t i, Iterator<Y> &it);
+
+    Iterator &operator-=(size_t i)
+    {
+        ptr_ -= i;
+        return *this;
+    }
+
 };
+
+template <class T>
+Iterator<T> &operator+(size_t i, Iterator<T> &it)
+{
+    it.ptr_ += i;
+    return it;
+}
+
 
 // класс вектор
 template<class T, class Alloc = std::allocator<T>>
@@ -270,8 +363,6 @@ public:
         for (size_type i=0; i<size_; i++)
             alloc.destroy(pointer + i);
 
-        alloc.deallocate(pointer, size_);
-        pointer = alloc.allocate(1);
         size_ = 0;
     }
 };
