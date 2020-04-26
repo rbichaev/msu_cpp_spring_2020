@@ -10,17 +10,20 @@
 template<class Res_T> 
 struct Result 
 { 	
-    volatile bool ready; 	
+    bool ready; 	
     Res_T out; 
+    std::mutex mut_r;
+    std::condition_variable cond_r;
 
     Result()
-        :ready(false)
+        : ready(false)
     {
     } 	
 
-    Res_T get() const
+    Res_T get()
     {
-        while(!ready) {}
+        std::unique_lock<std::mutex> lock_r(mut_r);
+        cond_r.wait(lock_r, [this](){ return ready; });
         return out;
     }
 }; 
@@ -82,22 +85,23 @@ public:
 
     // функция, реализующая интерфейс запуска из функции main
     template<class F, class ...Args> 
-    auto exec(F f, Args ...args)
+    auto exec(F &&f, Args &&...args)
     {
-        return push_function<decltype(f(args...))>(f, args...);
+        return push_function<decltype(f(args...))>(std::forward<F>(f), std::forward<Args>(args)...);
     }
 
     // кладет обработанную функцию в очередь и пробуждает спящий thread
-    template<class Res_T, class F, class ...Args> 
-    std::shared_ptr<Result<Res_T>> push_function(F f, Args ...args) 
+    template<class Res_T, class F, class ...Args>
+    std::shared_ptr<Result<Res_T>> push_function(F &&f, Args &&...args) 
     { 	
-        std::function<Res_T()> bind_funct = std::bind(f, args...);   	
-        std::shared_ptr<Result<Res_T>> result(new Result<Res_T>());
+        std::function<Res_T()> bind_funct = std::bind(f, args...); 	
+        auto result = std::make_shared<Result<Res_T>>();
 
         std::function<void()> funct = [=]() 	
-        { 		
+        {
             result->out = bind_funct(); 		
-            result->ready = true; 	
+            result->ready = true; 
+            result->cond_r.notify_one();
         };
 
         funct_queue.push(funct);
