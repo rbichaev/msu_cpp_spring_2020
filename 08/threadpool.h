@@ -94,7 +94,7 @@ public:
     template<class Res_T, class F, class ...Args>
     std::shared_ptr<Result<Res_T>> push_function(F &&f, Args &&...args) 
     { 	
-        std::function<Res_T()> bind_funct = std::bind(f, args...); 	
+        std::function<Res_T()> bind_funct = std::bind(std::forward<F>(f), std::forward<Args>(args)...); 	
         auto result = std::make_shared<Result<Res_T>>();
 
         std::function<void()> funct = [=]() 	
