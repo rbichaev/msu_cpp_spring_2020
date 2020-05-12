@@ -15,6 +15,7 @@ class ThreadSort
 {
     std::string filename; // имя файла с исходными данными
     size_t filelen; // длина этого файла
+    std::string fileresult; // имя файла, куда записать результат
 
     std::vector<std::string> blocknames; // имена файлов, куда помещаются отсортированные блоки
     std::vector<size_t> used_bounds; // границы блоков
@@ -29,8 +30,7 @@ class ThreadSort
 
 public:
 
-    ThreadSort(std::string name, size_t len, size_t st)
-        : filename(name), filelen(len), step(st)
+    ThreadSort()
     {}
 
     ~ThreadSort()
@@ -40,5 +40,5 @@ public:
     void get_changes(bool &ready, size_t &thr_curr, size_t &thr_step);
     void sort_blocks();
     void merge();
-    bool sort();
+    bool sort(const std::string &name, const std::string &res, size_t len, size_t st);
 };
