@@ -27,7 +27,7 @@ void ThreadSum::summator()
         std::string number;
         int begin_index = 0;
         int end_index = 0;
-        std::cout << numbers << std::endl;
+
         while (std::string::npos != (begin_index = numbers.find_first_not_of(' ', end_index)))
         {
             if (std::string::npos == (end_index = numbers.find_first_of(' ', begin_index)))
