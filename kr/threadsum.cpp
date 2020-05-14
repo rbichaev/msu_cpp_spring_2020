@@ -27,7 +27,7 @@ void ThreadSum::summator()
         std::string number;
         int begin_index = 0;
         int end_index = 0;
-        
+        std::cout << numbers << std::endl;
         while (std::string::npos != (begin_index = numbers.find_first_not_of(' ', end_index)))
         {
             if (std::string::npos == (end_index = numbers.find_first_of(' ', begin_index)))
@@ -37,7 +37,7 @@ void ThreadSum::summator()
 
             mut_num.lock();
             sum_ += std::stoi(number);
-            // std::cout << sum_ << std::endl;
+            
             mut_num.unlock();
         }
 
@@ -60,18 +60,15 @@ void ThreadSum::reader()
 
     std::string number;
 
-    
-
     getline(stream, str);
 
     while (true)
     {
-        getline(stream, str);
         mut_sum.lock();
         num_queue.push(str);
         cond.notify_one();
         mut_sum.unlock();
-        // std::cout << str << std::endl;
+        getline(stream, str);
         if (!stream)
             break;
     }
