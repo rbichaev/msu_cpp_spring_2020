@@ -13,22 +13,43 @@
 
 void ThreadSum::summator()
 {
-    int number;
+    std::string numbers;
     while (true)
     {
         std::unique_lock<std::mutex> lock(mut_num);
-        cond.wait(lock, [this](){ return (!num_queue.empty() || off); });
-        if (off)
+        cond.wait(lock, [this](){ return (!num_queue.empty() || ready); });
+        if (ready && num_queue.empty())
             break;
-        number = num_queue.front();
+        numbers = num_queue.front();
         num_queue.pop();
         lock.unlock();
-        sum_ += number;
-        std::cout <<sum_<<std::endl;
+
+        std::string number;
+        int begin_index = 0;
+        int end_index = 0;
         
-        if (num_queue.empty() && ready == true) break;
+        while (std::string::npos != (begin_index = numbers.find_first_not_of(' ', end_index)))
+        {
+            if (std::string::npos == (end_index = numbers.find_first_of(' ', begin_index)))
+                number = numbers.substr(begin_index);
+            else
+                number = numbers.substr(begin_index, end_index - begin_index);
+
+            mut_num.lock();
+            sum_ += std::stoi(number);
+            // std::cout << sum_ << std::endl;
+            mut_num.unlock();
+        }
+
+        mut_sum.lock();
+        if (num_queue.empty() && ready == true) 
+        {
+            mut_sum.unlock();
+            break;
+        }
+        mut_sum.unlock();
     }
-}
+}        
 
 // организует чтение чисел из файла и запись их в очередь
 void ThreadSum::reader()
@@ -39,31 +60,21 @@ void ThreadSum::reader()
 
     std::string number;
 
-    int begin_index = 0;
-    int end_index = 0;
+    
 
     getline(stream, str);
 
     while (true)
     {
-        while (std::string::npos != (begin_index = str.find_first_not_of(' ', end_index)))
-        {
-            if (std::string::npos == (end_index = str.find_first_of(' ', begin_index)))
-                number = str.substr(begin_index);
-            else
-                number = str.substr(begin_index, end_index - begin_index);
-
-            mut_num.lock();
-            num_queue.push(std::stoi(number));
-            std::cout << number << std::endl;
-            mut_num.unlock();
-            cond.notify_one();
-        }
         getline(stream, str);
+        mut_sum.lock();
+        num_queue.push(str);
+        cond.notify_one();
+        mut_sum.unlock();
+        // std::cout << str << std::endl;
         if (!stream)
             break;
     }
-
     ready = true;
     cond.notify_one();
     stream.close();
@@ -76,10 +87,12 @@ int ThreadSum::sum_numbers(const std::string &name)
     sum_ = 0;
 
     std::thread read(&ThreadSum::reader, this);
-    std::thread sum(&ThreadSum::summator, this);
+    std::thread sum1(&ThreadSum::summator, this);
+    std::thread sum2(&ThreadSum::summator, this);
 
     read.join();
-    sum.join();
+    sum1.join();
+    sum2.join();
 
     return sum_;
 }

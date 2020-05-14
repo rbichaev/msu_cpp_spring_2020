@@ -17,7 +17,7 @@ class ThreadSum
     std::mutex mut_sum;
     std::condition_variable cond;
 
-    std::queue<int> num_queue; // очередь с числами, которые подлежат суммированию
+    std::queue<std::string> num_queue; // очередь со строками с числами, которые подлежат суммированию
 
     std::string filename; // имя файла, откуда идет считывание
 
